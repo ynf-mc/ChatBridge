@@ -56,11 +56,11 @@ class CQChBot(websocket.WebSocketApp):
 					and data['guild_id'] == self.config.guild_id and data['channel_id'] == self.config.channel_id:
 				msg = data['message']
 				self.logger.info('sending to mc ' + msg)
-				sender = data['sender']
+				sender = data['sender']['nickname']
 				if len(sender) == 0:
 					sender = data['sender']['nickname']
 				text = html.unescape(msg)
-				chatClient.send_chat(str(text), str(sender))
+				chatClient.send_chat(text, sender)
 		except:
 			self.logger.exception('Error in on_message()')
 
