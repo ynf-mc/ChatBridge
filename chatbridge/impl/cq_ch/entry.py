@@ -8,7 +8,7 @@ from chatbridge.common.logger import ChatBridgeLogger
 from chatbridge.core.client import ChatBridgeClient
 from chatbridge.core.network.protocol import ChatPayload, CommandPayload
 from chatbridge.impl import utils
-from chatbridge.impl.cqhttp.config import CqHttpConfig
+from chatbridge.impl.cq_ch.config import CqHttpConfig
 
 ConfigFile = 'ChatBridge_CQ_Ch.json'
 cq_ch_bot: Optional['CQChBot'] = None
