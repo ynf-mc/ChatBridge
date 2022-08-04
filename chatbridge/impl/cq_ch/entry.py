@@ -65,7 +65,7 @@ class CQChBot(websocket.WebSocketApp):
 				if len(sender) == 0:
 					sender = data['sender']['nickname']
 				text = html.unescape(msg)
-				chatClient.send_chat(text, sender)
+				chatClient.send_chat(str(text), sender)
 		except:
 			self.logger.exception('Error in on_message()')
 
