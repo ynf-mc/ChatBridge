@@ -51,33 +51,23 @@ class CQChBot(websocket.WebSocketApp):
 		self.run_forever()
 
 	def on_message(self, _, message: str):
-		self.logger.info(message)
-		# try:
-		# 	if chatClient is None:
-		# 		return
-		# 	data = json.loads(message)
-		# 	if 'status' in data:
-		# 		self.logger.info('CoolQ return status {}'.format(data['status']))
-		# 	elif data['post_type'] == 'message' and data['message_type'] == 'guild' and data['sub_type'] == 'channel'\
-		# 			and data['guild_id'] == self.config.guild_id and data['channel_id'] == self.config.channel_id:
-		# 		args = data['raw_message'].split(' ')
-
-		# 		if len(args) == 1 and args[0] == '!!help':
-		# 			self.logger.info('!!help command triggered')
-		# 			self.send_text(CQChHelpMessage)
-
-		# 		if len(args) == 1 and args[0] == '!!ping':
-		# 			self.logger.info('!!ping command triggered')
-		# 			self.send_text('pong!!')
-
-		# 		self.logger.info('sending to mc')
-		# 		sender = data['sender']['card']
-		# 		if len(sender) == 0:
-		# 			sender = data['sender']['nickname']
-		# 		text = html.unescape(data['raw_message'])
-		# 		chatClient.send_chat(text, sender)
-		# except:
-		# 	self.logger.exception('Error in on_message()')
+		try:
+			if chatClient is None:
+				return
+			data = json.loads(message)
+			if 'status' in data:
+				self.logger.info('CoolQ return status {}'.format(data['status']))
+			elif data['post_type'] == 'message' and data['message_type'] == 'guild' and data['sub_type'] == 'channel'\
+					and data['guild_id'] == self.config.guild_id and data['channel_id'] == self.config.channel_id:
+				msg = data['message']
+				self.logger.info('sending to mc ' + msg)
+				sender = data['sender']
+				if len(sender) == 0:
+					sender = data['sender']['nickname']
+				text = html.unescape(msg)
+				chatClient.send_chat(text, sender)
+		except:
+			self.logger.exception('Error in on_message()')
 
 	def on_close(self, *args):
 		self.logger.info("Close connection")
