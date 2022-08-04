@@ -12,12 +12,7 @@ from chatbridge.impl.cq_ch.config import CqHttpConfig
 
 ConfigFile = 'ChatBridge_CQ_Ch.json'
 cq_ch_bot: Optional['CQChBot'] = None
-chatClient: Optional['CqHttpChatBridgeClient'] = None
-
-CQChHelpMessage = '''
-!!help: 显示本条帮助信息
-!!ping: pong!!
-'''.strip()
+chatClient: Optional['CqChHttpChatBridgeClient'] = None
 
 # 收到频道消息
 # 上报数据
@@ -65,7 +60,7 @@ class CQChBot(websocket.WebSocketApp):
 				if len(sender) == 0:
 					sender = data['sender']['nickname']
 				text = html.unescape(msg)
-				chatClient.send_chat(str(text), sender)
+				chatClient.send_chat(str(text), str(sender))
 		except:
 			self.logger.exception('Error in on_message()')
 
@@ -99,7 +94,7 @@ class CQChBot(websocket.WebSocketApp):
 		self.send_text('[{}] {}'.format(sender, message))
 
 
-class CqHttpChatBridgeClient(ChatBridgeClient):
+class CqChHttpChatBridgeClient(ChatBridgeClient):
 	def on_chat(self, sender: str, payload: ChatPayload):
 		global cq_ch_bot
 		if cq_ch_bot is None:
@@ -110,7 +105,7 @@ class CqHttpChatBridgeClient(ChatBridgeClient):
 def main():
 	global chatClient, cq_ch_bot
 	config = utils.load_config(ConfigFile, CqHttpConfig)
-	chatClient = CqHttpChatBridgeClient.create(config)
+	chatClient = CqChHttpChatBridgeClient.create(config)
 	utils.start_guardian(chatClient)
 	print('Starting CQ Bot')
 	cq_ch_bot = CQChBot(config)
