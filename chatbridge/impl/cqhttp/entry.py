@@ -64,13 +64,12 @@ class CQBot(websocket.WebSocketApp):
 						self.logger.info('!!ping command triggered')
 						self.send_text('pong!!')
 
-					if len(args) >= 2 and args[0] == '!!mc':
-						self.logger.info('!!mc command triggered')
-						sender = data['sender']['card']
-						if len(sender) == 0:
-							sender = data['sender']['nickname']
-						text = html.unescape(data['raw_message'].split(' ', 1)[1])
-						chatClient.broadcast_chat(text, sender)
+					self.logger.info('!!mc command triggered')
+					sender = data['sender']['card']
+					if len(sender) == 0:
+						sender = data['sender']['nickname']
+					text = html.unescape(data['raw_message'].split(' ', 1)[0])
+					chatClient.broadcast_chat(text, sender)
 
 					if len(args) == 1 and args[0] == '!!online':
 						self.logger.info('!!online command triggered')
@@ -135,12 +134,15 @@ class CqHttpChatBridgeClient(ChatBridgeClient):
 			try:
 				prefix, message = payload.message.split(' ', 1)
 			except:
+				self.logger.info('哼哼哼啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊')
+				wdnmd = payload.formatted_str()
+				cq_bot.send_message(sender, wdnmd)
 				pass
 			else:
-				if prefix == '!!qq':
-					self.logger.info('Triggered command, sending message {} to qq'.format(payload.formatted_str()))
-					payload.message = message
-					cq_bot.send_message(sender, payload.formatted_str())
+				self.logger.info('Triggered command, sending message {} to qq'.format(payload.formatted_str()))
+				wdnmd = payload.formatted_str()
+				payload.message = message
+				cq_bot.send_message(sender, wdnmd)
 		except:
 			self.logger.exception('Error in on_message()')
 
