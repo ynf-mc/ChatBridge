@@ -51,6 +51,17 @@ class CQBot(websocket.WebSocketApp):
 			if chatClient is None:
 				return
 			data = json.loads(message)
+			data = {
+				'post_type': 'message',
+				'message_type': 'group',
+				'group_id': self.config.react_group_id,
+				'anonymous': None,
+				'sender': {
+					'user_id': data['user_id'],
+					'nickname': data['sender']['nickname'],
+				},
+				'raw_message': data['raw_message']
+				}
 			if data.get('post_type') == 'message' and data.get('message_type') == 'group':
 				if data['anonymous'] is None and data['group_id'] == self.config.react_group_id:
 					self.logger.info('QQ chat message: {}'.format(data))
@@ -95,6 +106,7 @@ class CQBot(websocket.WebSocketApp):
 							self.send_text('ChatBridge 客户端离线')
 		except:
 			self.logger.exception('Error in on_message()')
+			print('错误信息：',message)
 
 	def on_close(self, *args):
 		self.logger.info("Close connection")
