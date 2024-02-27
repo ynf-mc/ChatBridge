@@ -52,14 +52,16 @@ class CQBot(websocket.WebSocketApp):
                 return
             data = json.loads(message)
             print("收到消息：", data)
-
             if data.get('post_type') == 'message' and data.get('message_type') == 'group':
                 print("满足条件1")
-                print(self.config.react_group_id)
-                if data['group_id'] == self.config.react_group_id:
-                    self.logger.info('QQ chat message: {}'.format(data))
-                    args = data['raw_message'].split(' ')
+                print("需要发送的群聊：",self.config.react_group_id,"变量类型为：",type(self.config.react_group_id))
+                print("当前的群聊：",data['group_id'],"变量类型为：",type(data['group_id']))
 
+                if data['group_id'] == self.config.react_group_id:
+                    print("满足条件2")
+                    self.logger.info('QQ chat message: {}'.format(data))
+                    print("QQ chat message: {}".format(data))
+                    args = data['raw_message'].split(' ')
                     if len(args) == 1 and args[0] == '!!help':
                         self.logger.info('!!help command triggered')
                         self.send_text(CQHelpMessage)
@@ -68,13 +70,15 @@ class CQBot(websocket.WebSocketApp):
                         self.logger.info('!!ping command triggered')
                         self.send_text('pong!!')
 
-                    if len(args) >= 2 and args[0] == '!!mc':
-                        self.logger.info('!!mc command triggered')
-                        sender = data['sender']['card']
-                        if len(sender) == 0:
-                            sender = data['sender']['nickname']
-                        text = html.unescape(data['raw_message'].split(' ', 1)[1])
-                        chatClient.broadcast_chat(text, sender)
+                    self.logger.info('!!mc command triggered')
+                    sender = data['sender']['card']
+                    if len(sender) == 0:
+                        sender = data['sender']['nickname']
+                    text = data['message'][0]['data']['text']
+                    # 打印一条黄色的控制台输出
+                    print("\033[1;33m" + "发送：" + sender + "：" + text + "\033[0m")
+#                     text = html.unescape(data['message'].split(' ', 1)[1])
+                    chatClient.broadcast_chat(text, sender)
 
                     if len(args) == 1 and args[0] == '!!online':
                         self.logger.info('!!online command triggered')
@@ -141,10 +145,10 @@ class CqHttpChatBridgeClient(ChatBridgeClient):
             except:
                 pass
             else:
-                if prefix == '!!qq':
-                    self.logger.info('Triggered command, sending message {} to qq'.format(payload.formatted_str()))
-                    payload.message = message
-                    cq_bot.send_message(sender, payload.formatted_str())
+                # if prefix == '!!qq':
+                self.logger.info('Triggered command, sending message {} to qq'.format(payload.formatted_str()))
+                payload.message = message
+                cq_bot.send_message(sender, payload.formatted_str())
         except:
             self.logger.exception('Error in on_message()')
 
