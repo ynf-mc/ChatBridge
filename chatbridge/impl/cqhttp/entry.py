@@ -40,6 +40,7 @@ class CQBot(websocket.WebSocketApp):
             url += '?access_token={}'.format(self.config.access_token)
         self.logger = ChatBridgeLogger('Bot', file_handler=chatClient.logger.file_handler)
         self.logger.info('Connecting to {}'.format(url))
+
         # noinspection PyTypeChecker
         super().__init__(url, on_message=self.on_message, on_close=self.on_close)
 
@@ -51,46 +52,40 @@ class CQBot(websocket.WebSocketApp):
             if chatClient is None:
                 return
             data = json.loads(message)
-            print("收到消息：", data)
+            # print("QQ收到消息：", data)
             if data.get('post_type') == 'message' and data.get('message_type') == 'group':
                 print("满足条件1")
-                print("需要发送的群聊：",self.config.react_group_id,"变量类型为：",type(self.config.react_group_id))
-                print("当前的群聊：",data['group_id'],"变量类型为：",type(data['group_id']))
+                # print("需要发送的群聊：", self.config.react_group_id, "变量类型为：", type(self.config.react_group_id))
+                # print("当前的群聊：", data['group_id'], "变量类型为：", type(data['group_id']))
 
                 if data['group_id'] == self.config.react_group_id:
                     print("满足条件2")
-                    self.logger.info('QQ chat message: {}'.format(data))
-                    print("QQ chat message: {}".format(data))
-                    args = data['raw_message'].split(' ')
-                    if len(args) == 1 and args[0] == '!!help':
-                        self.logger.info('!!help command triggered')
-                        self.send_text(CQHelpMessage)
-
-                    if len(args) == 1 and args[0] == '!!ping':
-                        self.logger.info('!!ping command triggered')
-                        self.send_text('pong!!')
-
-                    self.logger.info('!!mc command triggered')
+                    # self.logger.info('QQ chat message: {}'.format(data))
+                    # print("QQ chat message: {}".format(data))
+                    # self.logger.info('!!mc command triggered')
                     sender = data['sender']['card']
                     if len(sender) == 0:
                         sender = data['sender']['nickname']
                     text = data['message'][0]['data']['text']
+                    if text == '!!ping':
+                        self.logger.info('!!ping command triggered')
+                        self.send_text('pong!!')
                     # 打印一条黄色的控制台输出
-                    print("\033[1;33m" + "发送：" + sender + "：" + text + "\033[0m")
-#                     text = html.unescape(data['message'].split(' ', 1)[1])
+                    args = ['此特性已废除！']
+                    print("\033[1;33m" + "发送：" + sender + "：" + text + "到MC" + "\033[0m")
+                    # text = html.unescape(data['message'].split(' ', 1)[1])
                     chatClient.broadcast_chat(text, sender)
+                    # if len(args) == 1 and args[0] == '!!online':
+                    #     self.logger.info('!!online command triggered')
+                    #     if chatClient.is_online():
+                    #         command = args[0]
+                    #         client = self.config.client_to_query_online
+                    #         self.logger.info('Sending command "{}" to client {}'.format(command, client))
+                    #         chatClient.send_command(client, command)
+                    #     else:
+                    #         self.send_text('ChatBridge 客户端离线')
 
-                    if len(args) == 1 and args[0] == '!!online':
-                        self.logger.info('!!online command triggered')
-                        if chatClient.is_online():
-                            command = args[0]
-                            client = self.config.client_to_query_online
-                            self.logger.info('Sending command "{}" to client {}'.format(command, client))
-                            chatClient.send_command(client, command)
-                        else:
-                            self.send_text('ChatBridge 客户端离线')
-
-                    if len(args) >= 1 and args[0] == '!!stats':
+                    if text == '!!stats':
                         self.logger.info('!!stats command triggered')
                         command = '!!stats rank ' + ' '.join(args[1:])
                         if len(args) == 0 or len(args) - int(command.find('-bot') != -1) != 3:
@@ -141,11 +136,12 @@ class CqHttpChatBridgeClient(ChatBridgeClient):
             return
         try:
             try:
-                prefix, message = payload.message.split(' ', 1)
+                message = payload.message
             except:
                 pass
             else:
                 # if prefix == '!!qq':
+                print("\033[1;33m" + "发送：" + sender + "：" + message + "到QQ" + "\033[0m")
                 self.logger.info('Triggered command, sending message {} to qq'.format(payload.formatted_str()))
                 payload.message = message
                 cq_bot.send_message(sender, payload.formatted_str())
@@ -185,6 +181,9 @@ class CqHttpChatBridgeClient(ChatBridgeClient):
                 cq_bot.send_text(text)
         except:
             self.logger.exception('Error in on_custom()')
+
+    def _on_started(self):
+        cq_bot.send_message('CBQQ端', 'CB-QQ端已启动')
 
 
 def main():
