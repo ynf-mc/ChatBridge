@@ -66,7 +66,16 @@ class CQBot(websocket.WebSocketApp):
                     sender = data['sender']['card']
                     if len(sender) == 0:
                         sender = data['sender']['nickname']
-                    text = data['message'][0]['data']['text']
+                    try:
+                        text = data['message'][0]['data']['text']
+                    except KeyError:
+                        text = data['raw_message']
+                        # 取raw_message中从url=开头到;结尾的字符串
+                        text = text[text.find('url=') + 4:text.find(';')]
+                        # 若找不到，不会报错，返回-1
+                        if text == -1:
+                            text = data['raw_message']
+
                     if text == '!!ping':
                         self.logger.info('!!ping command triggered')
                         self.send_text('pong!!')
@@ -181,10 +190,6 @@ class CqHttpChatBridgeClient(ChatBridgeClient):
                 cq_bot.send_text(text)
         except:
             self.logger.exception('Error in on_custom()')
-
-    def _on_started(self):
-        cq_bot.send_message('CBQQ端', 'CB-QQ端已启动')
-
 
 def main():
     global chatClient, cq_bot

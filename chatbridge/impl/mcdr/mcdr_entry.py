@@ -119,11 +119,11 @@ def on_user_info(server: PluginServerInterface, info: Info):
 
 
 def on_player_joined(server: PluginServerInterface, player_name: str, info: Info):
-    send_chat('{} 已加入 {}'.format(player_name, config.name))
+    send_chat('{} 已加入'.format(player_name))
 
 
 def on_player_left(server: PluginServerInterface, player_name: str):
-    send_chat('{} 已离开 {}'.format(player_name, config.name))
+    send_chat('{} 已离开'.format(player_name))
 
 
 def on_server_startup(server: PluginServerInterface):
